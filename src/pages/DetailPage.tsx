@@ -1,8 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useUnit } from "effector-react";
-import { $users } from "../store/users";
+import { $users, fetchUsersFx } from "../store/users";
 import styled from "styled-components";
-import { User } from "../types/user"; // Импортируем тип User
+import { User } from "../types/user";
+import { useEffect } from "react";
 
 const Container = styled.div`
   padding: 20px;
@@ -25,10 +26,24 @@ const DetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const users = useUnit($users);
   const navigate = useNavigate();
+  const triggerFetch = useUnit(fetchUsersFx);
+
+  useEffect(() => {
+    // Загружаем данные, если их нет
+    if (users.length === 0) {
+      triggerFetch();
+    }
+  }, [users.length, triggerFetch]);
+
+  console.log("Users in DetailPage:", users);
+  console.log("Searching for id:", id);
 
   const user: User | undefined = users.find((u) => u.id === id);
 
-  if (!user) return <div>Пользователь не найден</div>;
+  if (!user) {
+    console.log("User not found for id:", id);
+    return <div>Пользователь не найден</div>;
+  }
 
   return (
     <Container>
@@ -46,4 +61,4 @@ const DetailPage = () => {
   );
 };
 
-export default DetailPage; // Используем экспорт по умолчанию
+export default DetailPage;

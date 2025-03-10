@@ -55,14 +55,16 @@ const HomePage = () => {
     } else {
       const deptUsers =
         usersCache[activeTab] ||
-        users.filter((user) => user.department === activeTab) ||
-        [];
+        (users || []).filter((user) => user.department === activeTab);
       setSortedUsers(deptUsers);
     }
   }, [users, usersCache, activeTab, location]);
 
   useEffect(() => {
-    const sourceUsers = usersCache[activeTab] || users || [];
+    const sourceUsers =
+      activeTab === "all"
+        ? usersCache["all"] || users || []
+        : usersCache[activeTab] || [];
     const filtered = Array.isArray(sourceUsers)
       ? sourceUsers.filter((user) =>
           `${user.firstName} ${user.lastName} ${user.userTag}`

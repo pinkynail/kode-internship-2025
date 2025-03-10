@@ -7,4 +7,5 @@ export interface User {
   position: string;
   birthday: string;
   phone: string;
+  avatarUrl?: string;
 }

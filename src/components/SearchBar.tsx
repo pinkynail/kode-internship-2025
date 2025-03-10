@@ -1,45 +1,9 @@
-import styled from "styled-components";
-
-const SearchContainer = styled.div`
-  position: relative;
-  margin-bottom: 20px;
-`;
-
-const SearchInput = styled.input`
-  width: 100%;
-  padding: 12px 40px;
-  border-radius: 12px;
-  border: none;
-  background-color: #f6f6f6;
-  font-size: 16px;
-  color: #888;
-  min-width: 200px;
-  @media (max-width: 400px) {
-    padding-left: 35px;
-    padding-right: 35px;
-  }
-`;
-
-const SearchIcon = styled.span`
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #999;
-`;
-
-const FilterIcon = styled.span`
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #999;
-  cursor: pointer;
-  z-index: 10;
-  &:hover {
-    color: #5460e8;
-  }
-`;
+import {
+  SearchContainer,
+  SearchInput,
+  SearchIcon,
+  FilterIcon,
+} from "../styles/HomePage.styles";
 
 interface SearchBarProps {
   searchQuery: string;

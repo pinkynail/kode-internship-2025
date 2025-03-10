@@ -1,9 +1,8 @@
-// src/main.tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { HomePage } from "./pages/HomePage";
-import { DetailPage } from "./pages/DetailPage";
+import HomePage from "./pages/HomePage"; // Импорт по умолчанию
+import DetailPage from "./pages/DetailPage"; // Импорт по умолчанию
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

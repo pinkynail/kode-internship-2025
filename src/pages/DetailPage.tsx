@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useUnit } from "effector-react";
 import { $users } from "../store/users";
 import styled from "styled-components";
-import { User } from "../api/users";
+import { User } from "../types/user"; // Импортируем тип User
 
 const Container = styled.div`
   padding: 20px;
@@ -21,7 +21,7 @@ const BackButton = styled.button`
   }
 `;
 
-export const DetailPage = () => {
+const DetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const users = useUnit($users);
   const navigate = useNavigate();
@@ -45,3 +45,5 @@ export const DetailPage = () => {
     </Container>
   );
 };
+
+export default DetailPage; // Используем экспорт по умолчанию

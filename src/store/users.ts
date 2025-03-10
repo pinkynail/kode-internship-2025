@@ -1,4 +1,3 @@
-// src/store/users.ts
 import { createStore, createEffect, combine } from "effector";
 import { fetchAllUsers, fetchUsersByDepartment, User } from "../api/users";
 
@@ -16,9 +15,24 @@ export const fetchUsersByDepartmentFx = createEffect<string, User[], Error>(
   },
 );
 
+// Хранилище для всех пользователей
 export const $users = createStore<User[]>([])
   .on(fetchUsersFx.doneData, (_, users) => users)
   .on(fetchUsersByDepartmentFx.doneData, (_, users) => users);
+
+// Хранилище для кэширования данных по департаментам
+export const $usersCache = createStore<{ [key: string]: User[] }>({})
+  .on(fetchUsersFx.doneData, (state, users) => ({
+    ...state,
+    all: users,
+  }))
+  .on(
+    fetchUsersByDepartmentFx.done,
+    (state, { result: users, params: department }) => ({
+      ...state,
+      [department]: users,
+    }),
+  );
 
 export const $isLoading = combine(
   fetchUsersFx.pending,

@@ -1,9 +1,8 @@
-// src/pages/DetailPage.tsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useUnit } from "effector-react";
 import { $users } from "../store/users";
 import styled from "styled-components";
-import { User } from "../api/users"; // Импорт используется для типизации
+import { User } from "../api/users";
 
 const Container = styled.div`
   padding: 20px;
@@ -27,7 +26,7 @@ export const DetailPage = () => {
   const users = useUnit($users);
   const navigate = useNavigate();
 
-  const user: User | undefined = users.find((u) => u.id === id); // Явно указываем тип User
+  const user: User | undefined = users.find((u) => u.id === id);
 
   if (!user) return <div>Пользователь не найден</div>;
 

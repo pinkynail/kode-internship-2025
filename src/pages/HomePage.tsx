@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useUnit } from "effector-react";
 import {
   $users,
+  $usersCache,
   $isLoading,
   $error,
   fetchUsersFx,
@@ -65,14 +66,14 @@ const Tabs = styled.div`
   margin-bottom: 20px;
 `;
 
-const Tab = styled.div<{ active: boolean }>`
+const Tab = styled.div<{ $active: boolean }>`
   padding: 10px 15px;
   cursor: pointer;
   color: #888;
   font-size: 15px;
   position: relative;
   ${(props) =>
-    props.active &&
+    props.$active &&
     `
     color: #5460E8;
     font-weight: 500;
@@ -148,8 +149,9 @@ const EmployeeTitle = styled.div`
 `;
 
 export const HomePage = () => {
-  const { users, isLoading, error } = useUnit({
+  const { users, usersCache, isLoading, error } = useUnit({
     users: $users,
+    usersCache: $usersCache,
     isLoading: $isLoading,
     error: $error,
   });
@@ -159,12 +161,17 @@ export const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (activeTab === "all") {
-      fetchUsersFx();
+    const cachedUsers = usersCache[activeTab] || usersCache["all"];
+    if (!cachedUsers || (activeTab === "all" && !usersCache["all"])) {
+      if (activeTab === "all") {
+        fetchUsersFx();
+      } else {
+        fetchUsersByDepartmentFx(activeTab);
+      }
     } else {
-      fetchUsersByDepartmentFx(activeTab);
+      setSortedUsers(cachedUsers);
     }
-  }, [activeTab]);
+  }, [activeTab, usersCache]);
 
   useEffect(() => {
     const filtered = users.filter((user) =>
@@ -311,32 +318,32 @@ export const HomePage = () => {
         </FilterIcon>
       </SearchContainer>
       <Tabs>
-        <Tab active={activeTab === "all"} onClick={() => setActiveTab("all")}>
+        <Tab $active={activeTab === "all"} onClick={() => setActiveTab("all")}>
           Все
         </Tab>
         <Tab
-          active={activeTab === "design"}
+          $active={activeTab === "design"}
           onClick={() => setActiveTab("design")}
         >
           Дизайн
         </Tab>
         <Tab
-          active={activeTab === "analytics"}
+          $active={activeTab === "analytics"}
           onClick={() => setActiveTab("analytics")}
         >
           Аналитика
         </Tab>
         <Tab
-          active={activeTab === "management"}
+          $active={activeTab === "management"}
           onClick={() => setActiveTab("management")}
         >
           Менеджмент
         </Tab>
-        <Tab active={activeTab === "ios"} onClick={() => setActiveTab("ios")}>
+        <Tab $active={activeTab === "ios"} onClick={() => setActiveTab("ios")}>
           iOS
         </Tab>
         <Tab
-          active={activeTab === "android"}
+          $active={activeTab === "android"}
           onClick={() => setActiveTab("android")}
         >
           Android

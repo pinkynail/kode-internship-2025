@@ -10,6 +10,7 @@ import {
 import { SortModal } from "../components/SortModal";
 import styled from "styled-components";
 import { User } from "../api/users";
+import { Link } from "react-router-dom"; // Импорт Link используется
 
 // Стили из предоставленного кода
 const Header = styled.h1`
@@ -89,6 +90,8 @@ const EmployeeCard = styled.div`
   display: flex;
   align-items: center;
   padding: 5px 0;
+  cursor: pointer;
+  text-decoration: none; /* Убираем подчеркивание для Link */
 `;
 
 const EmployeeAvatar = styled.img`
@@ -318,9 +321,9 @@ export const HomePage = () => {
           <p>{searchQuery ? "Ничего не найдено" : "Нет пользователей"}</p>
         ) : (
           sortedUsers.map((user) => (
-            <EmployeeCard key={user.id}>
+            <EmployeeCard key={user.id} as={Link} to={`/user/${user.id}`}>
               <EmployeeAvatar
-                src="/api/placeholder/60/60" // Замени на динамический URL, если есть
+                src="/api/placeholder/60/60"
                 alt={`${user.firstName} ${user.lastName}`}
               />
               <EmployeeInfo>

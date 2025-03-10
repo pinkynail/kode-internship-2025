@@ -1,3 +1,4 @@
+// src/components/TopAppBar.tsx
 import { SearchBar } from "./SearchBar";
 import { Tabs } from "./Tabs";
 import { SortModal } from "./SortModal";
@@ -10,7 +11,7 @@ interface TopAppBarProps {
   onTabChange: (tab: string) => void;
   isModalOpen: boolean;
   onFilterClick: () => void;
-  onSort: (field: "firstName" | "birthday", direction: "asc" | "desc") => void;
+  onSort: (field: "alphabet" | "birthday") => void; // Упрощаем тип
 }
 
 export const TopAppBar = ({
@@ -21,23 +22,22 @@ export const TopAppBar = ({
   isModalOpen,
   onFilterClick,
   onSort,
-}: TopAppBarProps) => {
-  return (
-    <>
-      <Header>Поиск</Header>
-      <SearchContainer>
-        <SearchBar
-          searchQuery={searchQuery}
-          onSearchChange={onSearchChange}
-          onFilterClick={onFilterClick}
-        />
-        <Tabs activeTab={activeTab} onTabChange={onTabChange} />
-      </SearchContainer>
-      <SortModal
-        isOpen={isModalOpen}
-        onClose={() => onFilterClick()}
-        onSort={onSort}
+}: TopAppBarProps) => (
+  <>
+    <Header>Поиск</Header>
+    <SearchContainer>
+      <SearchBar
+        searchQuery={searchQuery}
+        onSearchChange={onSearchChange}
+        onFilterClick={onFilterClick}
       />
-    </>
-  );
-};
+      <Tabs activeTab={activeTab} onTabChange={onTabChange} />
+    </SearchContainer>
+    <SortModal
+      isOpen={isModalOpen}
+      onClose={onFilterClick}
+      onSort={onSort}
+      currentSort={activeTab === "alphabet" ? "alphabet" : "birthday"} // Временное значение, будет исправлено в HomePage
+    />
+  </>
+);

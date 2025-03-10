@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useUnit } from "effector-react";
 import {
   $users,
@@ -13,7 +13,7 @@ import { EmployeeCard } from "../components/EmployeeCard";
 import { SkeletonLoader } from "../components/SkeletonLoader";
 import { EmployeeList } from "../styles/HomePage.styles";
 import { User } from "../api/users";
-import { useLocation } from "react-router-dom";
+import { SortModal } from "../components/SortModal";
 
 const HomePage = () => {
   const { users, usersCache, isLoading, error } = useUnit({
@@ -26,39 +26,32 @@ const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortedUsers, setSortedUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const location = useLocation();
+  const [sortConfig, setSortConfig] = useState<{
+    field: "alphabet" | "birthday";
+    direction: "asc" | "desc";
+  }>({
+    field: "alphabet",
+    direction: "asc",
+  });
+  const requestedTabsRef = useRef<string[]>([]); // Используем useRef вместо состояния
 
   useEffect(() => {
-    if (!usersCache[activeTab]) {
+    console.log("useEffect сработал для activeTab:", activeTab);
+    if (
+      !usersCache[activeTab] &&
+      !isLoading &&
+      !requestedTabsRef.current.includes(activeTab)
+    ) {
+      console.log("Отправляем запрос для вкладки:", activeTab);
+      requestedTabsRef.current = [...requestedTabsRef.current, activeTab]; // Синхронное обновление
       if (activeTab === "all") {
         fetchUsersFx();
       } else {
         fetchUsersByDepartmentFx(activeTab);
       }
     }
-  }, [activeTab, usersCache]);
-
-  useEffect(() => {
-    if (activeTab === "all") {
-      setSortedUsers(
-        (usersCache["all"] || users || []).filter(
-          (user, index, self) =>
-            index === self.findIndex((u) => u.id === user.id),
-        ),
-      );
-    } else {
-      const deptUsers = (
-        usersCache[activeTab] ||
-        (users || []).filter(
-          (user) => user.department.toLowerCase() === activeTab.toLowerCase(),
-        )
-      ).filter(
-        (user, index, self) =>
-          index === self.findIndex((u) => u.id === user.id),
-      );
-      setSortedUsers(deptUsers);
-    }
-  }, [users, usersCache, activeTab, location]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   useEffect(() => {
     const sourceUsers =
@@ -66,30 +59,18 @@ const HomePage = () => {
         ? usersCache["all"] || users || []
         : usersCache[activeTab] || [];
     const filtered = Array.isArray(sourceUsers)
-      ? sourceUsers
-          .filter((user) =>
-            `${user.firstName} ${user.lastName} ${user.userTag}`
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase()),
-          )
-          .filter(
-            (user, index, self) =>
-              index === self.findIndex((u) => u.id === user.id),
-          )
+      ? sourceUsers.filter((user) =>
+          `${user.firstName} ${user.lastName} ${user.userTag}`
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()),
+        )
       : [];
-    setSortedUsers(filtered);
-  }, [searchQuery, users, usersCache, activeTab]);
-
-  const handleSort = (
-    field: "firstName" | "birthday",
-    direction: "asc" | "desc",
-  ) => {
-    const sorted = [...sortedUsers].sort((a, b) => {
-      if (field === "firstName") {
-        return direction === "asc"
-          ? a.firstName.localeCompare(b.firstName)
-          : b.firstName.localeCompare(a.firstName);
-      } else {
+    const sorted = [...filtered].sort((a, b) => {
+      const { field, direction } = sortConfig;
+      let comparison = 0;
+      if (field === "alphabet") {
+        comparison = a.firstName.localeCompare(b.firstName);
+      } else if (field === "birthday") {
         const today = new Date("2025-03-10");
         const getDaysToBirthday = (date: string) => {
           const bday = new Date(date);
@@ -97,13 +78,20 @@ const HomePage = () => {
           if (bday < today) bday.setFullYear(today.getFullYear() + 1);
           return (bday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
         };
-        return direction === "asc"
-          ? getDaysToBirthday(a.birthday) - getDaysToBirthday(b.birthday)
-          : getDaysToBirthday(b.birthday) - getDaysToBirthday(a.birthday);
+        comparison =
+          getDaysToBirthday(a.birthday) - getDaysToBirthday(b.birthday);
       }
+      return direction === "asc" ? comparison : -comparison;
     });
     setSortedUsers(sorted);
-    setIsModalOpen(false); // Закрываем модальное окно после сортировки
+  }, [searchQuery, users, usersCache, activeTab, sortConfig]);
+
+  const handleSort = (field: "alphabet" | "birthday") => {
+    setSortConfig((prev) => ({
+      field,
+      direction: prev.direction === "asc" ? "desc" : "asc",
+    }));
+    setIsModalOpen(false);
   };
 
   if (isLoading) {
@@ -144,6 +132,12 @@ const HomePage = () => {
           sortedUsers.map((user) => <EmployeeCard key={user.id} user={user} />)
         )}
       </EmployeeList>
+      <SortModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSort={handleSort}
+        currentSort={sortConfig.field}
+      />
     </div>
   );
 };

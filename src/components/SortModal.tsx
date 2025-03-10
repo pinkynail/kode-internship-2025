@@ -1,99 +1,138 @@
-import { useState } from "react";
+import React from "react";
 import styled from "styled-components";
+import SelectedSvg from "../../assets/Selected.svg";
+import UnSelectedSvg from "../../assets/UnSelected.svg";
+import CloseSvg from "../../assets/Close.svg";
 
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 `;
 
 const ModalContent = styled.div`
-  background: white;
+  background: #ffffff;
+  border-radius: 12px;
   padding: 20px;
-  border-radius: 8px;
-  width: 300px;
-  max-height: 80vh;
-  overflow-y: auto;
+  width: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: #050510;
 `;
 
-const Button = styled.button`
-  padding: 8px 16px;
-  background: #007bff;
-  color: white;
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+`;
+
+const ModalTitle = styled.h2`
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: #050510;
+  margin: 0;
+  padding: 0;
+  flex-grow: 1;
+  text-align: center;
+`;
+
+const CloseButton = styled.button`
+  background: none;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  &:hover {
-    background: #0056b3;
-  }
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  margin-left: 8px;
 `;
 
-const CloseButton = styled(Button)`
-  background: #dc3545;
-  &:hover {
-    background: #b02a37;
-  }
+const CloseIcon = styled.img`
+  width: 24px;
+  height: 24px;
+`;
+
+const SortOption = styled.label`
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #050510;
+`;
+
+const RadioIcon = styled.img`
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
 `;
 
 interface SortModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSort: (field: "firstName" | "birthday", direction: "asc" | "desc") => void;
+  onSort: (field: "alphabet" | "birthday") => void;
+  currentSort: "alphabet" | "birthday";
 }
 
-export const SortModal = ({ isOpen, onClose, onSort }: SortModalProps) => {
-  const [sortField, setSortField] = useState<"firstName" | "birthday">(
-    "firstName",
-  );
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
+export const SortModal = ({
+  isOpen,
+  onClose,
+  onSort,
+  currentSort,
+}: SortModalProps) => {
   if (!isOpen) return null;
 
-  const handleSort = () => {
-    onSort(sortField, sortDirection);
+  const handleSortChange = (field: "alphabet" | "birthday") => {
+    onSort(field);
     onClose();
   };
 
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
-        <h2>Сортировка</h2>
-        <div>
-          <label>
-            Поле для сортировки:
-            <select
-              value={sortField}
-              onChange={(e) =>
-                setSortField(e.target.value as "firstName" | "birthday")
-              }
-            >
-              <option value="firstName">Имя</option>
-              <option value="birthday">Дата рождения</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            Направление:
-            <select
-              value={sortDirection}
-              onChange={(e) =>
-                setSortDirection(e.target.value as "asc" | "desc")
-              }
-            >
-              <option value="asc">По возрастанию</option>
-              <option value="desc">По убыванию</option>
-            </select>
-          </label>
-        </div>
-        <Button onClick={handleSort}>Применить</Button>
-        <CloseButton onClick={onClose}>Закрыть</CloseButton>
+        <ModalHeader>
+          <ModalTitle>Сортировка</ModalTitle>
+          <CloseButton onClick={onClose}>
+            <CloseIcon src={CloseSvg} alt="Close" />
+          </CloseButton>
+        </ModalHeader>
+        <SortOption onClick={() => handleSortChange("alphabet")}>
+          <RadioIcon
+            src={currentSort === "alphabet" ? SelectedSvg : UnSelectedSvg}
+            alt="Radio icon"
+          />
+          По алфавиту
+        </SortOption>
+        <SortOption onClick={() => handleSortChange("birthday")}>
+          <RadioIcon
+            src={currentSort === "birthday" ? SelectedSvg : UnSelectedSvg}
+            alt="Radio icon"
+          />
+          По дню рождения
+        </SortOption>
       </ModalContent>
     </ModalOverlay>
   );

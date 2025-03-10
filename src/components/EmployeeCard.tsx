@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { User } from "../types/user";
-
+import goosePlaceholder from "../../assets/goose-placeholder.png";
 export const Card = styled.div`
   display: flex;
   align-items: center;
@@ -13,12 +13,6 @@ export const Card = styled.div`
   &:hover {
     background-color: #f9f9f9;
   }
-
-  @media (max-width: 480px) {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 6px 0;
-  }
 `;
 
 export const Avatar = styled.img`
@@ -28,19 +22,6 @@ export const Avatar = styled.img`
   object-fit: cover;
   margin-right: 16px;
   background-color: #f0f0f0;
-
-  @media (max-width: 768px) {
-    width: 50px;
-    height: 50px;
-    margin-right: 12px;
-  }
-
-  @media (max-width: 480px) {
-    width: 40px;
-    height: 40px;
-    margin-right: 0;
-    margin-bottom: 8px;
-  }
 `;
 
 export const Info = styled.div`
@@ -56,10 +37,6 @@ export const Name = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 4px;
-
-  @media (max-width: 480px) {
-    font-size: 14px;
-  }
 `;
 
 export const Username = styled.span`
@@ -68,10 +45,6 @@ export const Username = styled.span`
   color: #888888;
   margin-left: 5px;
   font-weight: 400;
-
-  @media (max-width: 480px) {
-    font-size: 12px;
-  }
 `;
 
 export const Title = styled.div`
@@ -79,10 +52,6 @@ export const Title = styled.div`
   font-size: 14px;
   color: #555555;
   font-weight: 400;
-
-  @media (max-width: 480px) {
-    font-size: 12px;
-  }
 `;
 
 interface EmployeeCardProps {
@@ -90,16 +59,13 @@ interface EmployeeCardProps {
 }
 
 export const EmployeeCard = ({ user }: EmployeeCardProps) => {
-  // Генерируем уникальный URL placeholder на основе id
-  const placeholderUrl = `https://placehold.co/${user.id.slice(-6)}x${user.id.slice(-6)}/E0E0E0/FFFFFF?text=${user.userTag}`;
-
   return (
     <Card as={Link} to={`/user/${user.id}`}>
       <Avatar
-        src={user.avatarUrl || placeholderUrl}
+        src={user.avatarUrl || goosePlaceholder} // Сначала user.avatarUrl, если пусто — гусь
         alt={`${user.firstName} ${user.lastName}`}
         onError={(e) => {
-          e.currentTarget.src = placeholderUrl; // Используем уникальный placeholder при ошибке
+          e.currentTarget.src = goosePlaceholder; // При ошибке загрузки — гусь
         }}
       />
       <Info>

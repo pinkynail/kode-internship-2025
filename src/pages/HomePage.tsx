@@ -8,12 +8,10 @@ import {
   fetchUsersFx,
   fetchUsersByDepartmentFx,
 } from "../store/users";
-import { SearchBar } from "../components/SearchBar";
-import { Tabs } from "../components/Tabs";
+import { TopAppBar } from "../components/TopAppBar";
 import { EmployeeCard } from "../components/EmployeeCard";
 import { SkeletonLoader } from "../components/SkeletonLoader";
-import { SortModal } from "../components/SortModal";
-import { Header, EmployeeList } from "../styles/HomePage.styles";
+import { EmployeeList } from "../styles/HomePage.styles";
 import { User } from "../api/users";
 import { useLocation } from "react-router-dom";
 
@@ -38,15 +36,26 @@ const HomePage = () => {
         fetchUsersByDepartmentFx(activeTab);
       }
     }
-  }, [activeTab]);
+  }, [activeTab, usersCache]);
 
   useEffect(() => {
     if (activeTab === "all") {
-      setSortedUsers(usersCache["all"] || users || []);
+      setSortedUsers(
+        (usersCache["all"] || users || []).filter(
+          (user, index, self) =>
+            index === self.findIndex((u) => u.id === user.id),
+        ),
+      );
     } else {
-      const deptUsers =
+      const deptUsers = (
         usersCache[activeTab] ||
-        (users || []).filter((user) => user.department === activeTab);
+        (users || []).filter(
+          (user) => user.department.toLowerCase() === activeTab.toLowerCase(),
+        )
+      ).filter(
+        (user, index, self) =>
+          index === self.findIndex((u) => u.id === user.id),
+      );
       setSortedUsers(deptUsers);
     }
   }, [users, usersCache, activeTab, location]);
@@ -57,11 +66,16 @@ const HomePage = () => {
         ? usersCache["all"] || users || []
         : usersCache[activeTab] || [];
     const filtered = Array.isArray(sourceUsers)
-      ? sourceUsers.filter((user) =>
-          `${user.firstName} ${user.lastName} ${user.userTag}`
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()),
-        )
+      ? sourceUsers
+          .filter((user) =>
+            `${user.firstName} ${user.lastName} ${user.userTag}`
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()),
+          )
+          .filter(
+            (user, index, self) =>
+              index === self.findIndex((u) => u.id === user.id),
+          )
       : [];
     setSortedUsers(filtered);
   }, [searchQuery, users, usersCache, activeTab]);
@@ -89,18 +103,21 @@ const HomePage = () => {
       }
     });
     setSortedUsers(sorted);
+    setIsModalOpen(false); // Закрываем модальное окно после сортировки
   };
 
   if (isLoading) {
     return (
       <div>
-        <Header>Поиск</Header>
-        <SearchBar
+        <TopAppBar
           searchQuery={searchQuery}
           onSearchChange={(e) => setSearchQuery(e.target.value)}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          isModalOpen={isModalOpen}
           onFilterClick={() => setIsModalOpen(true)}
+          onSort={handleSort}
         />
-        <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
         <EmployeeList>
           <SkeletonLoader count={12} />
         </EmployeeList>
@@ -111,13 +128,15 @@ const HomePage = () => {
 
   return (
     <div>
-      <Header>Поиск</Header>
-      <SearchBar
+      <TopAppBar
         searchQuery={searchQuery}
         onSearchChange={(e) => setSearchQuery(e.target.value)}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        isModalOpen={isModalOpen}
         onFilterClick={() => setIsModalOpen(true)}
+        onSort={handleSort}
       />
-      <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
       <EmployeeList>
         {sortedUsers.length === 0 ? (
           <p>{searchQuery ? "Ничего не найдено" : "Нет пользователей"}</p>
@@ -125,11 +144,6 @@ const HomePage = () => {
           sortedUsers.map((user) => <EmployeeCard key={user.id} user={user} />)
         )}
       </EmployeeList>
-      <SortModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSort={handleSort}
-      />
     </div>
   );
 };

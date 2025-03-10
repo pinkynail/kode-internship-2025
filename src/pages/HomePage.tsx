@@ -10,9 +10,9 @@ import {
 import { SortModal } from "../components/SortModal";
 import styled from "styled-components";
 import { User } from "../api/users";
-import { Link } from "react-router-dom"; // Импорт Link используется
+import { Link } from "react-router-dom";
 
-// Стили из предоставленного кода
+// Стили
 const Header = styled.h1`
   font-size: 24px;
   font-weight: bold;
@@ -48,6 +48,10 @@ const FilterIcon = styled.span`
   top: 50%;
   transform: translateY(-50%);
   color: #999;
+  cursor: pointer;
+  &:hover {
+    color: #5460e8;
+  }
 `;
 
 const Tabs = styled.div`
@@ -91,7 +95,14 @@ const EmployeeCard = styled.div`
   align-items: center;
   padding: 5px 0;
   cursor: pointer;
-  text-decoration: none; /* Убираем подчеркивание для Link */
+  text-decoration: none;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    .employee-avatar {
+      margin-bottom: 10px;
+    }
+  }
 `;
 
 const EmployeeAvatar = styled.img`
@@ -138,14 +149,15 @@ export const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortedUsers, setSortedUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDataFetched, setIsDataFetched] = useState(false); // Флаг для оптимизации запросов
 
   useEffect(() => {
-    if (activeTab === "all") {
-      fetchUsersFx();
-    } else {
+    if (activeTab === "all" && !isDataFetched) {
+      fetchUsersFx().then(() => setIsDataFetched(true));
+    } else if (activeTab !== "all") {
       fetchUsersByDepartmentFx(activeTab);
     }
-  }, [activeTab]);
+  }, [activeTab, isDataFetched]);
 
   useEffect(() => {
     const filtered = users.filter((user) =>
@@ -210,7 +222,7 @@ export const HomePage = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <FilterIcon>
+        <FilterIcon onClick={() => setIsModalOpen(true)}>
           <svg
             width="18"
             height="18"
@@ -292,19 +304,19 @@ export const HomePage = () => {
           active={activeTab === "design"}
           onClick={() => setActiveTab("design")}
         >
-          Designers
+          Дизайн
         </Tab>
         <Tab
           active={activeTab === "analytics"}
           onClick={() => setActiveTab("analytics")}
         >
-          Analysts
+          Аналитика
         </Tab>
         <Tab
           active={activeTab === "management"}
           onClick={() => setActiveTab("management")}
         >
-          Managers
+          Менеджмент
         </Tab>
         <Tab active={activeTab === "ios"} onClick={() => setActiveTab("ios")}>
           iOS
@@ -337,7 +349,6 @@ export const HomePage = () => {
           ))
         )}
       </EmployeeList>
-      <button onClick={() => setIsModalOpen(true)}>Сортировать</button>
       <SortModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

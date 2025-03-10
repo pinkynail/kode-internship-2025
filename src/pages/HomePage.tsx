@@ -32,6 +32,10 @@ const SearchInput = styled.input`
   background-color: #f6f6f6;
   font-size: 16px;
   color: #888;
+  min-width: 200px;
+  @media (max-width: 400px) {
+    padding-left: 35px;
+  }
 `;
 
 const SearchIcon = styled.span`
@@ -49,6 +53,7 @@ const FilterIcon = styled.span`
   transform: translateY(-50%);
   color: #999;
   cursor: pointer;
+  z-index: 10;
   &:hover {
     color: #5460e8;
   }
@@ -88,6 +93,8 @@ const EmployeeList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
+  max-height: 70vh;
+  overflow-y: auto;
 `;
 
 const EmployeeCard = styled.div`
@@ -112,6 +119,7 @@ const EmployeeAvatar = styled.img`
   overflow: hidden;
   margin-right: 15px;
   object-fit: cover;
+  background-color: #f0f0f0;
 `;
 
 const EmployeeInfo = styled.div`
@@ -149,15 +157,14 @@ export const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortedUsers, setSortedUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isDataFetched, setIsDataFetched] = useState(false); // Флаг для оптимизации запросов
 
   useEffect(() => {
-    if (activeTab === "all" && !isDataFetched) {
-      fetchUsersFx().then(() => setIsDataFetched(true));
-    } else if (activeTab !== "all") {
+    if (activeTab === "all") {
+      fetchUsersFx();
+    } else {
       fetchUsersByDepartmentFx(activeTab);
     }
-  }, [activeTab, isDataFetched]);
+  }, [activeTab]);
 
   useEffect(() => {
     const filtered = users.filter((user) =>
@@ -178,9 +185,16 @@ export const HomePage = () => {
           ? a.firstName.localeCompare(b.firstName)
           : b.firstName.localeCompare(a.firstName);
       } else {
+        const today = new Date("2025-03-10");
+        const getDaysToBirthday = (date: string) => {
+          const bday = new Date(date);
+          bday.setFullYear(today.getFullYear());
+          if (bday < today) bday.setFullYear(today.getFullYear() + 1);
+          return (bday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+        };
         return direction === "asc"
-          ? new Date(a.birthday).getTime() - new Date(b.birthday).getTime()
-          : new Date(b.birthday).getTime() - new Date(a.birthday).getTime();
+          ? getDaysToBirthday(a.birthday) - getDaysToBirthday(b.birthday)
+          : getDaysToBirthday(b.birthday) - getDaysToBirthday(a.birthday);
       }
     });
     setSortedUsers(sorted);
@@ -335,7 +349,7 @@ export const HomePage = () => {
           sortedUsers.map((user) => (
             <EmployeeCard key={user.id} as={Link} to={`/user/${user.id}`}>
               <EmployeeAvatar
-                src="/api/placeholder/60/60"
+                src="https://placehold.co/60x60"
                 alt={`${user.firstName} ${user.lastName}`}
               />
               <EmployeeInfo>

@@ -18,9 +18,8 @@ const ModalContent = styled.div`
   padding: 20px;
   border-radius: 8px;
   width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
 `;
 
 const Button = styled.button`

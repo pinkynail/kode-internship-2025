@@ -10,7 +10,6 @@ import {
 import { SortModal } from "../components/SortModal";
 import styled from "styled-components";
 import { User } from "../api/users";
-import { Link } from "react-router-dom";
 
 // Стили из предоставленного кода
 const Header = styled.h1`

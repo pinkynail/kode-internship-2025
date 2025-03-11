@@ -1,14 +1,16 @@
-import { Route, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage"; // Импорт по умолчанию
-import DetailPage from "./pages/DetailPage"; // Импорт по умолчанию
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import DetailPage from "./pages/DetailPage";
 
-function App() {
+const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/user/:id" element={<DetailPage />} />
-    </Routes>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/user/:id" element={<DetailPage />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

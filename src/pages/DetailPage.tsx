@@ -5,33 +5,59 @@ import { useUnit } from "effector-react";
 import { $users, $usersCache, fetchUsersFx } from "../store/users";
 import { User } from "../api/users";
 
-import ArrowIcon from "../../assets/Right.svg?react";
+import RawNavArrow from "../../assets/Right.svg?react";
 import FavoriteIcon from "../../assets/icon-favorite-1.svg?react";
 import PhoneIcon from "../../assets/icon-phone-alt-1.svg?react";
+import GoosePlaceholder from "../../assets/goose-placeholder.png";
 
-// Основной контейнер
+// Маппинг департаментов
+const departmentMap: { [key: string]: string } = {
+  android: "Android",
+  ios: "iOS",
+  design: "Дизайн",
+  management: "Менеджмент",
+  qa: "QA",
+  back_office: "Бэк-офис",
+  frontend: "Frontend",
+  hr: "HR",
+  pr: "PR",
+  backend: "Backend",
+  support: "Техподдержка",
+  analytics: "Аналитика",
+};
+
+// Стили
 const DetailContainer = styled.div`
-  background: var(--light-bg-secondary, #f7f7f8);
-  min-height: 100vh;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  font-family: var(--font-family-inter, "Inter", sans-serif);
-  color: var(--light-text-primary, #050510);
+  grid-row-gap: 10px;
+  background-color: #f7f7f8;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 720px;
+  display: flex;
+  overflow: hidden;
 `;
 
-// Навигационная панель
 const NavigationBar = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
   width: 100%;
-  padding: 12px 24px;
-  background-color: #ffffff;
-  z-index: 1000;
+  min-height: 40px;
+  display: flex;
+  overflow: hidden;
 `;
 
-// Кнопка "Назад"
+const Frame3030 = styled.div`
+  grid-column-gap: 16px;
+  flex: 0 auto;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 24px;
+  display: flex;
+  overflow: hidden;
+`;
+
 const BackButton = styled.button`
   display: flex;
   align-items: center;
@@ -41,158 +67,153 @@ const BackButton = styled.button`
   padding: 0;
 `;
 
-// Иконка стрелки
-const NavArrow = styled(ArrowIcon)`
+const StyledNavArrow = styled(RawNavArrow)`
+  object-fit: cover;
   width: 24px;
   height: 24px;
-  transform: rotate(180deg); /* Повернуть стрелку влево */
 `;
 
-// Контейнер для контента
-const Container = styled.div`
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 16px;
-  width: 100%;
-
-  @media (max-width: 768px) {
-    padding: 0 8px;
-  }
-`;
-
-// Шапка профиля
-const ProfileHeader = styled.div`
-  background-color: var(--light-bg-secondary, #f7f7f8);
-  padding: 72px 0 24px;
-  text-align: center;
-`;
-
-// Аватарка
-const ProfileAvatar = styled.img`
-  width: 128px;
-  height: 128px;
-  margin: 0 auto 24px;
-  border-radius: 50%;
-  object-fit: cover;
-
-  @media (max-width: 768px) {
-    width: 96px;
-    height: 96px;
-  }
-`;
-
-// Информация о пользователе
-const ProfileInfo = styled.div`
-  display: flex;
+const Frame3218 = styled.div`
+  grid-row-gap: 28px;
   flex-direction: column;
-  gap: 12px;
-`;
-
-// Контейнер для имени и никнейма
-const NameContainer = styled.div`
-  display: flex;
+  justify-content: flex-start;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  width: 100%;
+  padding: 30px 16px;
+  display: flex;
 `;
 
-// Имя
-const Name = styled.h1`
-  color: var(--light-text-primary, #050510);
+const ProfileAvatar = styled.img`
+  object-fit: cover;
+  border-radius: 64px;
+  width: 104px;
+  height: 104px;
+`;
+
+const Frame3219 = styled.div`
+  grid-row-gap: 12px;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  display: flex;
+  overflow: hidden;
+`;
+
+const Frame3220 = styled.div`
+  grid-column-gap: 4px;
+  flex: 0 auto;
+  justify-content: flex-start;
+  align-items: flex-end;
+  display: flex;
+  overflow: hidden;
+`;
+
+const Name = styled.div`
+  color: #050510;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-family: Inter, sans-serif;
   font-size: 24px;
   font-weight: 700;
   line-height: 28px;
-  text-align: center;
-
-  @media (max-width: 768px) {
-    font-size: 20px;
-  }
 `;
 
-// Никнейм
-const Username = styled.span`
-  color: var(--light-text-tetriary, #96969b);
+const Username = styled.div`
+  color: #97979b;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-family: Inter, sans-serif;
   font-size: 17px;
   font-weight: 400;
   line-height: 22px;
-  white-space: nowrap;
 `;
 
-// Должность
 const Occupation = styled.div`
-  color: var(--light-text-secondary, #55555c);
-  font-size: 13px;
+  color: #55555c;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-family: Inter, sans-serif;
+  font-size: 16px;
   font-weight: 400;
   line-height: 16px;
-  text-align: center;
 `;
 
-// Разделители
-const SpacingDivider8 = styled.div`
-  height: 8px;
-  background-color: var(--light-bg-secondary, #f7f7f8);
-`;
-
-const SpacingDivider16 = styled.div`
-  height: 16px;
-  background-color: var(--light-bg-secondary, #f7f7f8);
-`;
-
-// Контактные данные
-const ContactDetails = styled.div`
-  display: flex;
+const Frame3221 = styled.div`
+  grid-row-gap: 13px;
+  background-color: #fff;
   flex-direction: column;
-  gap: 6px;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 456px;
+  padding: 17px 16px;
+  display: flex;
+  overflow: hidden;
 `;
 
-// Элемент контакта
-const ContactItem = styled.div`
-  display: flex;
-  align-items: center;
+const Frame3222 = styled.div`
   justify-content: space-between;
-  padding: 12px 0;
-  min-height: 60px;
-`;
-
-// Левая часть контакта (иконка + текст)
-const ContactLeft = styled.div`
+  align-items: flex-start;
+  width: 100%;
+  padding-top: 9px;
+  padding-bottom: 9px;
   display: flex;
-  align-items: center;
-  gap: 10px;
 `;
 
-// Иконка контакта
+const Frame3223 = styled.div`
+  grid-column-gap: 14px;
+  flex: 0 auto;
+  justify-content: flex-start;
+  align-items: flex-start;
+  display: flex;
+`;
+
 const ContactIcon = styled.div`
+  object-fit: cover;
   width: 24px;
   height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
-// Текст контакта
 const ContactTitle = styled.div`
-  font-size: var(--font-size-m, 16px);
+  color: #050510;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 16px;
   font-weight: 500;
-  color: var(--light-text-primary, #050510);
   line-height: 20px;
+  font-family: Inter, sans-serif;
 `;
 
-// Деталь контакта (например, возраст)
 const ContactDetail = styled.div`
-  font-size: var(--font-size-m, 16px);
+  color: #97979b;
+  text-align: right;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 16px;
   font-weight: 500;
-  color: var(--light-text-tetriary, #96969b);
   line-height: 20px;
+  font-family: Inter, sans-serif;
 `;
 
-// Разделитель
-const Separator = styled.div`
-  height: 1px;
-  background-color: var(--light-bg-secondary, #f7f7f8);
+const Frame3224 = styled.div`
+  grid-column-gap: 14px;
+  justify-content: flex-start;
+  align-items: flex-start;
   width: 100%;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  display: flex;
 `;
 
-// Ссылка на телефон
 const PhoneLink = styled.a`
-  color: var(--light-text-primary, #050510);
+  color: #050510;
   text-decoration: none;
   &:hover {
     color: #6534ff;
@@ -222,11 +243,6 @@ const DetailPage = () => {
     return <DetailContainer>Пользователь не найден</DetailContainer>;
   }
 
-  const handlePhoneClick = () => {
-    window.location.href = `tel:${user.phone}`;
-  };
-
-  // Рассчитываем возраст
   const birthDate = new Date(user.birthday);
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
@@ -238,65 +254,68 @@ const DetailPage = () => {
     age--;
   }
 
+  const formattedBirthDate = birthDate.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const handlePhoneClick = () => {
+    window.location.href = `tel:${user.phone}`;
+  };
+
   return (
-    <DetailContainer>
-      <NavigationBar>
-        <BackButton onClick={() => navigate(-1)}>
-          <NavArrow />
-        </BackButton>
+    <DetailContainer className="_205">
+      <NavigationBar className="navigation-barx-3">
+        <Frame3030 className="frame-3030">
+          <BackButton onClick={() => navigate(-1)}>
+            <StyledNavArrow className="iconarrowchevronmediumsoloright" />
+          </BackButton>
+        </Frame3030>
       </NavigationBar>
-      <Container>
-        <ProfileHeader>
-          <ProfileAvatar
-            src={user.avatarUrl || "https://via.placeholder.com/128"}
-            alt={user.firstName}
-          />
-          <ProfileInfo>
-            <NameContainer>
-              <Name>
-                {user.firstName} {user.lastName}
-              </Name>
-              <Username>{user.userTag.toLowerCase()}</Username>
-            </NameContainer>
-            <Occupation>{user.department}</Occupation>
-          </ProfileInfo>
-        </ProfileHeader>
-        <SpacingDivider8 />
-        <SpacingDivider16 />
-        <ContactDetails>
-          <ContactItem>
-            <ContactLeft>
-              <ContactIcon>
-                <FavoriteIcon />
-              </ContactIcon>
-              <ContactTitle>
-                {new Date(user.birthday).toLocaleDateString("ru-RU", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </ContactTitle>
-            </ContactLeft>
-            <ContactDetail>{age} года</ContactDetail>
-          </ContactItem>
-          <Separator />
-          <ContactItem>
-            <ContactLeft>
-              <ContactIcon>
-                <PhoneIcon />
-              </ContactIcon>
-              <ContactTitle>
-                <PhoneLink
-                  href={`tel:${user.phone}`}
-                  onClick={handlePhoneClick}
-                >
-                  {user.phone}
-                </PhoneLink>
-              </ContactTitle>
-            </ContactLeft>
-          </ContactItem>
-        </ContactDetails>
-      </Container>
+      <Frame3218 className="frame-3218">
+        <ProfileAvatar
+          src={user.avatarUrl || GoosePlaceholder}
+          alt={`${user.firstName} ${user.lastName}`}
+          className="iconsvg"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = GoosePlaceholder;
+          }}
+        />
+        <Frame3219 className="frame-3219">
+          <Frame3220 className="frame-3220">
+            <Name className="text">
+              {user.firstName} {user.lastName}
+            </Name>
+            <Username className="text-6">{user.userTag.toLowerCase()}</Username>
+          </Frame3220>
+          <Occupation className="text-7">
+            {departmentMap[user.department] || user.department}
+          </Occupation>
+        </Frame3219>
+      </Frame3218>
+      <Frame3221 className="frame-3221">
+        <Frame3222 className="frame-3222">
+          <Frame3223 className="frame-3223">
+            <ContactIcon className="iconarrowchevronmediumsoloright">
+              <FavoriteIcon />
+            </ContactIcon>
+            <ContactTitle className="title-style-4">
+              {formattedBirthDate}
+            </ContactTitle>
+          </Frame3223>
+          <ContactDetail className="detail">{age} года</ContactDetail>
+        </Frame3222>
+        <Frame3224 className="frame-3224">
+          <ContactIcon className="iconarrowchevronmediumsoloright">
+            <PhoneIcon />
+          </ContactIcon>
+          <PhoneLink href={`tel:${user.phone}`} onClick={handlePhoneClick}>
+            <ContactTitle className="title-style-4">{user.phone}</ContactTitle>
+          </PhoneLink>
+        </Frame3224>
+      </Frame3221>
     </DetailContainer>
   );
 };
